@@ -40,4 +40,8 @@ if __name__=="__main__":
     for filename in args.logfiles:
         print "Opening to parse %s" % filename
         
+        fh = openFile(filename)
+        
+        fh.close()
+        
         
