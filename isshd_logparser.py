@@ -6,7 +6,9 @@ import urllib
 import argparse
 import gzip, bz2
 import os.path
+from datetime import datetime
 
+import pprint
 
 #Example input lines:
 #"channel_data_server_3 time=1448310282.769933 uristring=NMOD_3.17 uristring=-1463764005%3Am7int02%3A22 count=1639715128 count=0 uristring=%0A%5Blbrown%40m7int02+%7E%5D%24+"
@@ -24,6 +26,11 @@ def openFile(filename=None):
     else:
         return open(filename, 'r')
 
+def decodeData(data=None):
+    if data==None:
+        raise ValueError("No data provided.")
+    else:
+        return urllib.unquote_plus(data).lstrip()
 
 if __name__=="__main__":
     argparser = argparse.ArgumentParser(description="Extract info from isshd logs, making it more intelligible")
@@ -37,11 +44,38 @@ if __name__=="__main__":
     if args.logfiles==[]:
         args.logfiles.append("/usr/local/bro/logs/isshd/isshd.log");
     
+    
+    
+    session_regex_match = r"^(channel_data_server_3|channel_data_client_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
+    
+    #pprint.pprint(session_regex_match)
+    
+    session_regex_match_re = re.compile(session_regex_match)
+    
+    sessionevents={}
+    
     for filename in args.logfiles:
-        print "Opening to parse %s" % filename
+        print "Parsing parse %s" % filename
         
         fh = openFile(filename)
+    
+        line = fh.readline()
+        while line:
+            matchresults = session_regex_match_re.search(line)
+            if matchresults != None:
+                #print "found matching line: %s" % line
+                matchcaptures = matchresults.groups()
+                #pprint.pprint(matchcaptures)
+                
+                sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]={'type': matchcaptures[0], 'software': matchcaptures[2], 'host': matchcaptures[3], 'data': decodeData(matchcaptures[4])}
+            line = fh.readline()
         
         fh.close()
         
+        print "Done parsing %s" % filename
         
+    #pprint.pprint(sessionevents)
+    
+    for eventdatetime in sessionevents:
+        print "{when} - Type: {type}, Host: {host}, Data: {data}".format(when=eventdatetime, type=sessionevents[eventdatetime]['type'], host=sessionevents[eventdatetime]['host'], data=sessionevents[eventdatetime]['data'])
+    
