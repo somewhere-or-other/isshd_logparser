@@ -56,7 +56,7 @@ if __name__=="__main__":
     sessionevents={}
     
     for filename in args.logfiles:
-        #print "Parsing parse %s" % filename
+        print "Parsing parse %s" % filename
         
         fh = openFile(filename)
     
@@ -71,7 +71,7 @@ if __name__=="__main__":
         
         fh.close()
         
-        #print "Done parsing %s" % filename
+        print "Done parsing %s" % filename
         
     #pprint.pprint(sessionevents)
     
