@@ -4,7 +4,7 @@
 import curses
 import time
 
-import pprint
+#import pprint
 
 def centerStringInWindow(window, string):
     height, width = window.getmaxyx()
@@ -27,22 +27,24 @@ def generatePad(stdscr, padlines=100, padcols=100):
             except curses.error:
                 pass
     
-    pad.box()
+    #pad.box()
+    pad.border()
+    pad.scrollok(True)
     
     
     return pad
 
-def debugScroll(padparams, window):
-    centerStringInWindow(window, pprint.pformat(padparams))
+#def debugScroll(padparams, window):
+    #centerStringInWindow(window, pprint.pformat(padparams))
 
 def refreshPad(pad, padparams):
     pad.refresh(padparams['pminrow'], padparams['pmincol'], padparams['sminrow'], padparams['smincol'], padparams['smaxrow'], padparams['smaxcol'])
 
-def main(stdscr):
+def cursesMain(stdscr):
     stdscr.clear()
-    hello = 'Hello, world!'
-    bye = 'Goodbye.'
-    stdscr.addstr(hello)
+    #hello = 'Hello, world!'
+    #bye = 'Goodbye.'
+    #stdscr.addstr(hello)
     stdscr.refresh()
     
     padparams = {
@@ -64,7 +66,7 @@ def main(stdscr):
         c = stdscr.getch()
         if c == ord('q'):
             stdscr.clear()
-            centerStringInWindow(stdscr, bye)
+            #centerStringInWindow(stdscr, bye)
             stdscr.refresh()
             #time.sleep(2)
             break
@@ -74,36 +76,35 @@ def main(stdscr):
             stdscr.refresh()
         elif c == curses.KEY_UP:
             if (padparams['pminrow'] > 0):
-                padparams['pminrow']-=1
-            debugScroll(padparams, stdscr)
-            refreshPad(pad, padparams)
+                padparams['pminrow'] -= 1
+            #debugScroll(padparams, stdscr)
+            pad.scroll(1)
+            #refreshPad(pad, padparams)
         elif c == curses.KEY_DOWN:
             if (padparams['pminrow'] < (padparams['padlines']-padparams['smaxrow']+padparams['sminrow']-1)):
-                padparams['pminrow']+=1
-            debugScroll(padparams, stdscr)
-            refreshPad(pad, padparams)
+                padparams['pminrow'] += 1
+            #debugScroll(padparams, stdscr)
+            pad.scroll(-1)
+            #refreshPad(pad, padparams)
         elif c == curses.KEY_LEFT:
             if (padparams['pmincol'] > 0):
-                padparams['pmincol']-=1
-            debugScroll(padparams, stdscr)
+                padparams['pmincol'] -= 1
+            #debugScroll(padparams, stdscr)
             refreshPad(pad, padparams)
         elif c == curses.KEY_RIGHT:
             if (padparams['pmincol'] < (padparams['padcols']-padparams['smaxcol']+padparams['smincol']-1)):
-                padparams['pmincol']+=1
-            debugScroll(padparams, stdscr)
+                padparams['pmincol'] += 1
+            #debugScroll(padparams, stdscr)
             refreshPad(pad, padparams)
         elif c == curses.KEY_HOME:
-            padparams['pminrow']=0
-            padparams['pmincol']=0
-            debugScroll(padparams, stdscr)
+            padparams['pminrow'] = 0
+            padparams['pmincol'] = 0
+            #debugScroll(padparams, stdscr)
             refreshPad(pad, padparams)
-        elif c == curses.KEY_BACKSPACE:
-            centerStringInWindow(stdscr, "pressed KEY_BACKSPACE")
-        elif c == curses.KEY_END:
-            centerStringInWindow(stdscr, "pressed KEY_END")
+
 
             
 
 if __name__ == '__main__':
     # curses.wrapper takes care of terminal initialization and cleanup for us:
-    curses.wrapper(main)
+    curses.wrapper(cursesMain)
