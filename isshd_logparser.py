@@ -4,7 +4,7 @@
 import re
 import urllib
 import argparse
-import gzip, bz2
+import gzip
 import os.path
 from datetime import datetime
 import string
@@ -31,7 +31,6 @@ def decodeData(data=None):
     if data==None:
         raise ValueError("No data provided.")
     else:
-        #return urllib.unquote_plus(data).lstrip()
         return escape_control_characters(urllib.unquote_plus(data).lstrip())
 
 if __name__=="__main__":
@@ -48,7 +47,7 @@ if __name__=="__main__":
     
     
     
-    #session_regex_match = r"^(channel_data_server_3|channel_data_client_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
+
     session_regex_match = r"^(channel_data_server_3|channel_data_client_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=-?\d+%%3A(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
     
     session_regex_match_re = re.compile(session_regex_match)
@@ -73,7 +72,6 @@ if __name__=="__main__":
         
         print "Done parsing %s" % filename
         
-    #pprint.pprint(sessionevents)
     
     for eventdatetime in sorted(sessionevents):
         print "{when} - Type: {type}, Host: {host}, Data: {data}".format(when=eventdatetime, type=sessionevents[eventdatetime]['type'], host=sessionevents[eventdatetime]['host'], data=sessionevents[eventdatetime]['data'])
