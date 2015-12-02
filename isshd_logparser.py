@@ -22,7 +22,7 @@ class ItemWidget (urwid.WidgetWrap):
         self.id = id
         self.item = [
             ('fixed', 28, urwid.Padding(urwid.AttrWrap(urwid.Text('%s' % date), 'date', 'focus'))),
-            urwid.Text((msgtype, '%s' % message), wrap='clip')
+            urwid.Text((msgtype, '%s' % message))
         ]
         w = urwid.Columns(self.item)
         self.__super.__init__(w)
