@@ -55,14 +55,21 @@ def decodeData(data=None):
         #return urllib.unquote_plus(data).lstrip()
 
 def urwidMain(eventslist, sessionid):
-    mainheader = urwid.Pile([ urwid.AttrWrap(urwid.Text("isshd_logparser for session %s" % sessionid), 'header'), urwid.AttrWrap(urwid.Text('Client Input'), 'client'), urwid.AttrWrap(urwid.Text('Server Output'), 'server') ])
+    
+    headerstring = "isshd_logparser for session %s" % sessionid
+    
+    mainheader = urwid.Columns([
+        (len(headerstring), urwid.AttrWrap(urwid.Text(headerstring), 'header')), 
+        urwid.AttrWrap(urwid.Text('Client Input', align='center'), 'client'), 
+        urwid.AttrWrap(urwid.Text('Server Output', align='center'), 'server') 
+        ])
     
     palette = [
         ('date','light gray', '', 'standout'),
         ('focus','dark red', '', 'standout'),
         ('client', 'dark green', '', 'standout'),
         ('server', 'brown', '', 'standout'),
-        ('head','light red', 'black'),
+        ('header','light red', 'black'),
         ]
     
     frame = urwid.Frame( urwid.ListBox(eventslist), header=mainheader)
