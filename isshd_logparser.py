@@ -33,52 +33,6 @@ class ItemWidget (urwid.WidgetWrap):
     def keypress(self, size, key):
         return key
 
-#class OverlayBgFocus (urwid.Overlay):
-    #def selectable(self):
-        #"""Return selectable from bottom_w."""
-        #return self.bottom_w.selectable()
-
-    #def keypress(self, size, key):
-        #"""Pass keypress to bottom_w."""
-        #return self.bottom_w.keypress(size, key)
-
-    #def _get_focus(self):
-        #"""
-        #Currently self.bottom_w is always the focus of an Overlay
-        #"""
-        #return self.bottom_w
- 
-    #def _get_focus_position(self):
-        #"""
-        #Return the bottom widget position (currently always 0).
-        #"""
-        #return 0
-    #def _set_focus_position(self, position):
-        #"""
-        #Set the widget in focus.  Currently only position 0 is accepted.
-
-        #position -- index of child widget to be made focus
-        #"""
-        #if position != 0:
-            #raise IndexError, ("OverlaBgFocus widget focus_position currently "
-                #"must always be set to 0, not %s" % (position,))
-    
-    #def mouse_event(self, size, event, button, col, row, focus):
-        #"""Pass event to bottom_w, ignore if outside of bottom_w."""
-        #if not hasattr(self.bottom_w, 'mouse_event'):
-            #return False
-
-        #left, right, top, bottom = self.calculate_padding_filler(size,
-            #focus)
-        #maxcol, maxrow = size
-        #if ( col<left or col>=maxcol-right or
-            #row<top or row>=maxrow-bottom ):
-            #return False
-
-        #return self.bottom_w.mouse_event(
-            #self.bottom_w_size(size, left, right, top, bottom),
-            #event, button, col-left, row-top, focus )
-
 def openFile(filename=None):
     if filename==None:
         raise ValueError("No filename specified.")
@@ -122,9 +76,7 @@ def urwidMain(eventslist, sessionid):
     mainheader = urwid.AttrWrap(urwid.Text(headerstring), 'header')
 
 
-    #legend = urwid.LineBox( urwid.ListBox([ urwid.AttrWrap(urwid.Text(client_key_string, align='center'), 'client'), 
-        #urwid.AttrWrap(urwid.Text(server_key_string, align='center'), 'server')]), title='Key')
-
+ 
     legend = urwid.Columns([
         urwid.Padding(urwid.Text(key_key_string), left=5),
         (2, urwid.AttrWrap(urwid.Text('', align='right'), 'clientbg')),
@@ -143,15 +95,10 @@ def urwidMain(eventslist, sessionid):
     #frame = urwid.Frame( urwid.ListBox(eventslist), header=mainheader)
     frame = urwid.Frame( urwid.ListBox(eventslist), header=headercolumns)
     
-    #overlay = OverlayBgFocus(legend, frame ,valign='top', align='right', width=max(len(client_key_string),len(server_key_string))+2, height=4)
-    #overlay = urwid.Overlay(legend, frame ,valign='top', align='right', width=max(len(client_key_string),len(server_key_string))+2, height=4)
-    
-    
     def unhandled(key):
         if key in ('q','Q'):
             raise urwid.ExitMainLoop()
 
-    #loop = urwid.MainLoop(overlay, palette, unhandled_input=unhandled)
     loop = urwid.MainLoop(frame, palette, unhandled_input=unhandled)
     loop.run()
 
