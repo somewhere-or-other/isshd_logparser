@@ -106,7 +106,8 @@ if __name__=="__main__":
     argparser = argparse.ArgumentParser(description="Extract info from isshd logs, making it more intelligible")
     argparser.add_argument('-s', '--sessionid', action='store', metavar="SESSIONID", dest='sessionid', help="REQUIRED OPTION. Session to extract from the log.  Note that this is usually available in the Bro notification email, right before the username.", required=True)
     argparser.add_argument('-l', '--logfile', action='append', metavar='LOGFILEPATH', dest='logfiles', help="Specifies the path or paths to extract data from.  May be specified multiple times, and log files may be compressed with '.gz' extension.", default=[])
-    argparser.add_argument('-i', '--interactive', action="store_true", dest="interactive", help="use colorized, interactive output (q to exit)", default=False)
+    argparser.add_argument('-i', '--interactive', action="store_true", dest="interactive", help="use colorized, interactive output (q to exit)", default=True)
+    argparser.add_argument('-n', '--noninteractive', action="store_false", dest="interactive", help="plain, non-interactive output")
     
     args = argparser.parse_args()
     
@@ -154,7 +155,15 @@ if __name__=="__main__":
                 if matchresults != None:
                     matchcaptures = matchresults.groups()
                     
-                    sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]={'type': matchcaptures[0], 'software': matchcaptures[2], 'host': decodeData(matchcaptures[3]), 'data': decodeData(matchcaptures[4])}
+                    eventtype="Unknown"
+                    
+                    if matchcaptures[0] == "channel_data_client_3":
+                        eventtype="Client"
+                    elif matchcaptures[0] == "channel_data_server_3":
+                        eventtype="Server"
+                    
+                    
+                    sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]={'type': eventtype, 'data': decodeData(matchcaptures[4])}
 
                 line = fh.readline()
             
@@ -168,6 +177,6 @@ if __name__=="__main__":
         urwidMain(displaylines, args.sessionid)
     else:
         for eventdatetime in sorted(sessionevents):
-            print "{when} - Type: {type}, Host: {host}, Data: {data}".format(when=eventdatetime, type=sessionevents[eventdatetime]['type']
-, host=sessionevents[eventdatetime]['host'], data=sessionevents[eventdatetime]['data'])
+            print "{when} {type}: {data}".format(when=eventdatetime, type=sessionevents[eventdatetime]['type']
+, data=sessionevents[eventdatetime]['data'])
 
