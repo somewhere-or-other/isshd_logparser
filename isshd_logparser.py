@@ -91,6 +91,8 @@ if __name__=="__main__":
             server_key_string='Server Output'
             key_key_string='Key:'
             
+            sortedeventslist = [ eventslist[i] for i in sorted(eventslist) ]
+            
             mainheader = urwid.AttrWrap(urwid.Text(headerstring), 'header')
 
 
@@ -110,7 +112,7 @@ if __name__=="__main__":
             
 
             
-            frame = urwid.Frame( urwid.ListBox(eventslist), header=headercolumns)
+            frame = urwid.Frame( urwid.ListBox( sortedeventslist ), header=headercolumns)
             
             def unhandled(key):
                 if key in ('q','Q'):
@@ -138,7 +140,6 @@ if __name__=="__main__":
     
     session_regex_match_re = re.compile(session_regex_match)
 
-    displaylines = [] #for interactive
     sessionevents = {} #for plain output
     idcount=0
     
@@ -150,7 +151,6 @@ if __name__=="__main__":
         line = fh.readline()
         
         if (interactive_output):
-            #TODO: handle sorting events by date/time, when sessions are split across multiple files
             while line:
                 matchresults = session_regex_match_re.search(line)
                 if matchresults != None:
@@ -158,10 +158,10 @@ if __name__=="__main__":
                     
                     
                     if matchcaptures[0]=="channel_data_server_3":
-                        displaylines.append(ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'server'))
+                        sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]=ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'server')
                         idcount += 1
                     elif matchcaptures[0]=="channel_data_client_3":
-                        displaylines.append(ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'client'))
+                        sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]=ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'client')
                         idcount += 1
                 line = fh.readline()
                 
@@ -191,7 +191,7 @@ if __name__=="__main__":
     
     
     if (interactive_output):
-        urwidMain(displaylines, args.sessionid)
+        urwidMain(sessionevents, args.sessionid)
     else:
         for eventdatetime in sorted(sessionevents):
             print "{when} {type}: {data}".format(when=eventdatetime, type=sessionevents[eventdatetime]['type']
