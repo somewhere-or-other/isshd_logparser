@@ -88,12 +88,14 @@ if __name__=="__main__":
                 ('server', 'brown', '', 'standout'),
                 ('serverbg', '', 'brown', 'standout'),
                 ('header','light red', 'black'),
+                ('footer','light red', 'black')
                 ]  
         
             headerstring = "isshd_logparser for session %s" % sessionid
             client_key_string='Client Input'
             server_key_string='Server Output'
             key_key_string='Key:'
+            footerstring = "Hotkeys:  q -> Quit"
             
             sortedeventslist = [ eventslist[i] for i in sorted(eventslist) ]
             
@@ -114,9 +116,11 @@ if __name__=="__main__":
                 (len(key_key_string)+len(client_key_string)+len(server_key_string)+15, legend)
                 ])
             
+            
+            footer = urwid.AttrMap(urwid.Text(footerstring), 'footer')
 
             
-            frame = urwid.Frame( urwid.ListBox( sortedeventslist ), header=headercolumns)
+            frame = urwid.Frame( urwid.ListBox( sortedeventslist ), header=headercolumns, footer=footer)
             
             def unhandled(key):
                 if key in ('q','Q'):
