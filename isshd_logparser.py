@@ -63,7 +63,7 @@ if __name__=="__main__":
             def __init__ (self, id, date, message, msgtype):
                 self.id = id
                 self.item = [
-                    ('fixed', 28, urwid.Padding(urwid.AttrWrap(urwid.Text('%s' % date), 'date', 'focus'))),
+                    ('fixed', 28, urwid.Padding(urwid.AttrMap(urwid.Text('%s' % date), 'date', 'focus'))),
                     urwid.Text((msgtype, '%s' % message))
                 ]
                 w = urwid.Columns(self.item)
@@ -97,16 +97,16 @@ if __name__=="__main__":
             
             sortedeventslist = [ eventslist[i] for i in sorted(eventslist) ]
             
-            mainheader = urwid.AttrWrap(urwid.Text(headerstring), 'header')
+            mainheader = urwid.AttrMap(urwid.Text(headerstring), 'header')
 
 
         
             legend = urwid.Columns([
                 urwid.Padding(urwid.Text(key_key_string), left=5),
-                (2, urwid.AttrWrap(urwid.Text('', align='right'), 'clientbg')),
-                urwid.AttrWrap(urwid.Text(client_key_string, align='left'), 'client'),
-                (2, urwid.AttrWrap(urwid.Text('', align='right'), 'serverbg')),
-                urwid.AttrWrap(urwid.Text(server_key_string, align='left'), 'server')
+                (2, urwid.AttrMap(urwid.Text('', align='right'), 'clientbg')),
+                urwid.AttrMap(urwid.Text(client_key_string, align='left'), 'client'),
+                (2, urwid.AttrMap(urwid.Text('', align='right'), 'serverbg')),
+                urwid.AttrMap(urwid.Text(server_key_string, align='left'), 'server')
                 ])
             
             headercolumns = urwid.Columns([
