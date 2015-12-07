@@ -10,9 +10,6 @@ from datetime import datetime
 import string
 import unicodedata
 
-#import pprint
-
-interactivedefault=True #change to false if you want non-interactive to be default
 
 def openFile(filename=None):
     if filename==None:
@@ -38,6 +35,11 @@ def decodeData(data=None):
 
 
 if __name__=="__main__":
+    
+    interactivedefault=True #change to false if you want non-interactive to be default
+    defaultlogfilepath="/usr/local/bro/logs/isshd/isshd.log" #default path, if nothing specified
+    
+    #set up command-line args
     argparser = argparse.ArgumentParser(description="Extract info from isshd logs, making it more intelligible")
     argparser.add_argument('-s', '--sessionid', action='store', metavar="SESSIONID", dest='sessionid', help="REQUIRED OPTION. Session to extract from the log.  Note that this is usually available in the Bro notification email, right before the username.", required=True)
     argparser.add_argument('-l', '--logfile', action='append', metavar='LOGFILEPATH', dest='logfiles', help="Specifies the path or paths to extract data from.  May be specified multiple times, and log files may be compressed with '.gz' extension.", default=[])
@@ -46,8 +48,10 @@ if __name__=="__main__":
     
     args = argparser.parse_args()
     
-    interactive_output = args.interactive
     
+    #default of interactive vs non-interactive, will depend on what the user specified
+    #but will still be subject to the following try/except logic
+    interactive_output = args.interactive
     try:
         import urwid
         
@@ -120,28 +124,25 @@ if __name__=="__main__":
 
             loop = urwid.MainLoop(frame, palette, unhandled_input=unhandled)
             loop.run()
-            
-        
-        
-        
-        
         
     except ImportError:
+        #had a problem importing URWID library
         if (args.interactive):
             print "Error: interactive output requires the URWID library (urwid.org), but I can't seem to find it.  Reverting to non-interactive output"
         interactive_output=False
     
     
     if args.logfiles==[]:
-        args.logfiles.append("/usr/local/bro/logs/isshd/isshd.log");
+        args.logfiles.append(defaultlogfilepath);
     
-
+    
     session_regex_match = r"^(channel_data_server_3|channel_data_client_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=-?\d+%%3A(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
     
     session_regex_match_re = re.compile(session_regex_match)
 
-    sessionevents = {} #for plain output
-    idcount=0
+    sessionevents = {} #collector for events; the exact structure will be different for interactive vs non-interactive
+
+    idcount=0 #we need a unique ID for the interactive ItemWidgets, unused otherwise
     
     for filename in args.logfiles:
         print "Parsing file %s" % filename
@@ -149,6 +150,10 @@ if __name__=="__main__":
         fh = openFile(filename)
     
         line = fh.readline()
+        
+        #I'm putting this if conditional outside the "while line" loop
+        #so we will only encounter/evaluate the if, once per file, not
+        #once per line.  It does duplicate some code, but not much.
         
         if (interactive_output):
             while line:
