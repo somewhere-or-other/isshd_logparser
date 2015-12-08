@@ -87,16 +87,17 @@ if __name__=="__main__":
             #Syntax:
             # ( NAME , ForegroundColor, BackgroundColor, I'm Not Sure )
             palette = [
-                ('date','light gray', '', ''),
-                ('focus','dark red', '', 'standout'),
-                ('client', 'dark green', 'black', ''),
-                ('clientbgkey', '', 'dark green', ''),
-                ('clientnotty', 'dark green', 'light gray', 'standout'),
-                ('server', 'brown', 'black', ''),
-                ('serverbgkey', '', 'brown', ''),
-                ('servernotty', 'brown', 'dark blue', 'standout'),
+                ('date','dark red', 'black', ''),
+                ('focus','light red', 'black', 'standout'),
+                ('client', 'dark cyan', 'black', ''),
+                #('clientbgkey', '', 'dark green', ''),
+                ('clientnotty', 'black', 'dark cyan', 'standout'),
+                ('server', 'light gray', 'black', ''),
+                #('serverbgkey', '', 'brown', ''),
+                ('servernotty', 'black', 'light gray', 'standout'),
                 ('header','light red', 'black'),
-                ('footer','light red', 'black')
+                ('footer','light red', 'black'),
+                ('key','light red','black')
                 ]  
         
             headerstring = "isshd_logparser for session %s" % sessionid
@@ -111,7 +112,7 @@ if __name__=="__main__":
 
         
             legend = urwid.Columns([
-                urwid.Padding(urwid.Text(key_key_string), left=5),
+                urwid.Padding(urwid.AttrMap(urwid.Text(key_key_string), 'key'), left=5),
                 #(2, urwid.AttrMap(urwid.Text('', align='right'), 'clientbgkey')),
                 (len(client_key_string)+1, urwid.AttrMap(urwid.Text(client_key_string, align='left'), 'client')),
                 (len(client_notty_key_string)+1, urwid.AttrMap(urwid.Text(client_notty_key_string, align='left'), 'clientnotty')),
