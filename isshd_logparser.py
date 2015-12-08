@@ -49,6 +49,12 @@ if __name__=="__main__":
     args = argparser.parse_args()
     
     
+    #some strings used by both branches of the code
+    client_key_string='Client Input'
+    server_key_string='Server Output'
+    client_notty_key_string='Client Input (no-tty)'
+    server_notty_key_string='Server Output (no-tty)'
+    
     #default of interactive vs non-interactive, will depend on what the user specified
     #but will still be subject to the following try/except logic
     interactive_output = args.interactive
@@ -81,19 +87,20 @@ if __name__=="__main__":
             #Syntax:
             # ( NAME , ForegroundColor, BackgroundColor, I'm Not Sure )
             palette = [
-                ('date','light gray', '', 'standout'),
+                ('date','light gray', '', ''),
                 ('focus','dark red', '', 'standout'),
-                ('client', 'dark green', '', 'standout'),
-                ('clientbg', '', 'dark green', 'standout'),
-                ('server', 'brown', '', 'standout'),
-                ('serverbg', '', 'brown', 'standout'),
+                ('client', 'dark green', 'black', ''),
+                ('clientbgkey', '', 'dark green', ''),
+                ('clientnotty', 'dark green', 'light gray', 'standout'),
+                ('server', 'brown', 'black', ''),
+                ('serverbgkey', '', 'brown', ''),
+                ('servernotty', 'brown', 'dark blue', 'standout'),
                 ('header','light red', 'black'),
                 ('footer','light red', 'black')
                 ]  
         
             headerstring = "isshd_logparser for session %s" % sessionid
-            client_key_string='Client Input'
-            server_key_string='Server Output'
+
             key_key_string='Key:'
             footerstring = "Hotkeys:  q -> Quit"
             
@@ -105,15 +112,17 @@ if __name__=="__main__":
         
             legend = urwid.Columns([
                 urwid.Padding(urwid.Text(key_key_string), left=5),
-                (2, urwid.AttrMap(urwid.Text('', align='right'), 'clientbg')),
-                urwid.AttrMap(urwid.Text(client_key_string, align='left'), 'client'),
-                (2, urwid.AttrMap(urwid.Text('', align='right'), 'serverbg')),
-                urwid.AttrMap(urwid.Text(server_key_string, align='left'), 'server')
+                #(2, urwid.AttrMap(urwid.Text('', align='right'), 'clientbgkey')),
+                (len(client_key_string)+1, urwid.AttrMap(urwid.Text(client_key_string, align='left'), 'client')),
+                (len(client_notty_key_string)+1, urwid.AttrMap(urwid.Text(client_notty_key_string, align='left'), 'clientnotty')),
+                #(2, urwid.AttrMap(urwid.Text('', align='right'), 'serverbgkey')),
+                (len(server_key_string)+1, urwid.AttrMap(urwid.Text(server_key_string, align='left'), 'server')),
+                (len(server_notty_key_string)+1, urwid.AttrMap(urwid.Text(server_notty_key_string, align='left'), 'servernotty'))
                 ])
             
             headercolumns = urwid.Columns([
                 mainheader,
-                (len(key_key_string)+len(client_key_string)+len(server_key_string)+15, legend)
+                (len(key_key_string)+len(client_key_string)+len(server_key_string)+len(client_notty_key_string)+len(server_notty_key_string)+10, legend)
                 ])
             
             
@@ -140,7 +149,7 @@ if __name__=="__main__":
         args.logfiles.append(defaultlogfilepath);
     
     
-    session_regex_match = r"^(channel_data_server_3|channel_data_client_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=-?\d+%%3A(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
+    session_regex_match = r"^(channel_data_server_3|channel_data_client_3|channel_notty_client_data_3|channel_notty_server_data_3)\s+time=([.\d]+)\s+uristring=(\S+)\s+uristring=-?\d+%%3A(\S+)\s+count=%s\s+count=0\s+uristring=(\S+)\s*$" % args.sessionid
     
     session_regex_match_re = re.compile(session_regex_match)
 
@@ -172,6 +181,14 @@ if __name__=="__main__":
                     elif matchcaptures[0]=="channel_data_client_3":
                         sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]=ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'client')
                         idcount += 1
+                    elif matchcaptures[0]=="channel_notty_client_data_3":
+                        sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]=ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'clientnotty')
+                        idcount += 1
+                    elif matchcaptures[0]=="channel_notty_server_data_3":
+                        sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]=ItemWidget(idcount, datetime.fromtimestamp(float(matchcaptures[1])), decodeData(matchcaptures[4]), 'servernotty')
+                        idcount += 1
+
+
                 line = fh.readline()
                 
         else: #non-interactive output
@@ -184,9 +201,13 @@ if __name__=="__main__":
                     eventtype="Unknown"
                     
                     if matchcaptures[0] == "channel_data_client_3":
-                        eventtype="Client"
+                        eventtype=client_key_string
                     elif matchcaptures[0] == "channel_data_server_3":
-                        eventtype="Server"
+                        eventtype=server_key_string
+                    elif matchcaptures[0]=="channel_notty_client_data_3":
+                        eventtype=client_notty_key_string
+                    elif matchcaptures[0]=="channel_notty_server_data_3":
+                        eventtype=server_notty_key_string
                     
                     
                     sessionevents[datetime.fromtimestamp(float(matchcaptures[1]))]={'type': eventtype, 'data': decodeData(matchcaptures[4])}
