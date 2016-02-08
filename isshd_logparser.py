@@ -89,9 +89,9 @@ if __name__=="__main__":
             palette = [
                 ('date','dark red', 'black', ''),
                 ('focus','light red', 'black', 'standout'),
-                ('client', 'dark cyan', 'black', ''),
+                ('client', 'light green', 'black', ''),
                 #('clientbgkey', '', 'dark green', ''),
-                ('clientnotty', 'black', 'dark cyan', 'standout'),
+                ('clientnotty', 'black', 'light green', 'standout'),
                 ('server', 'light gray', 'black', ''),
                 #('serverbgkey', '', 'brown', ''),
                 ('servernotty', 'black', 'light gray', 'standout'),
