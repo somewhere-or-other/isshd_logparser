@@ -28,9 +28,15 @@ def decodeData(data=None):
     if data==None:
         raise ValueError("No data provided.")
     else:
-        return escape_control_characters(urllib.unquote_plus(data).lstrip())
-        #return urllib.unquote_plus(data).lstrip()
-
+        data_decoded=urllib.unquote_plus(data).lstrip()
+        returndata=""
+        try:
+            returndata=escape_control_characters(data_decoded)
+        except UnicodeDecodeError:
+            returndata="UNICODE PARSE ERROR:" . data_decoded
+        finally:
+            return returndata
+        
 
 
 
